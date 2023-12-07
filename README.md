@@ -33,5 +33,7 @@ define service {
 ```bash
 # service nagios4 reload
 ```
-wait - and see 
-![image](https://github.com/edguy3/nagios_check_northernlights/assets/4311096/8862c6ae-45b1-47d4-b4ac-63178949e422)
+wait - and see:
+
+![image](https://github.com/edguy3/nagios_check_northern_lights/assets/4311096/7ba645ea-fb48-4a88-b12c-a3a05a52b101)
+
