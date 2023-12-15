@@ -1,54 +1,19 @@
 #/bin/bash
 
-VERSION="1.0.0 edguy@eguy.org 2023-dec-7"
+VERSION="1.0.01 edguy@eguy.org 2023-DEC-15"
 
-CRITICAL=5
+CRITICAL=6
 WARNING=4
 VERBOSE=false
 
 LINK=https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json
 SEELINK=https://www.swpc.noaa.gov/products/3-day-geomagnetic-forecast
 
-    ################################################################################
-    # Process command line options
-    #
-    # We do no use getopts since it is unable to process long options
+floatGT() {
+    # yes, this < is backwards..
+    return $(echo "$1 < $2" |bc -l)
+}
 
-    while true; do
-
-        case "$1" in
-            ########################################
-            # Options without arguments
-            -v|--verbose)
-                VERBOSE=true
-                shift
-                ;;
-            ########################################
-            # Options with arguments
-            -c|--critical)
-                if [ $# -gt 1 ]; then
-                    CRITICAL="$2"
-                    shift 2
-                else
-                   unknown "-c,--critical requires an argument"
-                fi
-                ;;
-            -w|--warning)
-                if [ $# -gt 1 ]; then
-                    WARNING="$2"
-                    shift 2
-                else
-                   unknown "-c,--critical requires an argument"
-                fi
-                ;;
-            *)
-                if [ -n "$1" ] ; then
-                    unknown "invalid option: ${1}"
-                fi
-                break
-                ;;
-        esac
-    done
 
 ################################################################################
 # Exits with a critical message
@@ -72,6 +37,47 @@ ok() {
     echo OK: $*
     exit 0
 }
+
+################################################################################
+# Process command line options
+#
+# We do no use getopts since it is unable to process long options
+
+while true; do
+
+    case "$1" in
+        ########################################
+        # Options without arguments
+        -v|--verbose)
+            VERBOSE=true
+            shift
+            ;;
+        ########################################
+        # Options with arguments
+        -c|--critical)
+            if [ $# -gt 1 ]; then
+                CRITICAL="$2"
+                shift 2
+            else
+                warning "-c,--critical requires an argument"
+            fi
+            ;;
+        -w|--warning)
+            if [ $# -gt 1 ]; then
+                WARNING="$2"
+                shift 2
+            else
+                warning "-c,--critical requires an argument"
+            fi
+            ;;
+        *)
+            if [ -n "$1" ] ; then
+                warning "invalid option: ${1}"
+            fi
+            break
+            ;;
+    esac
+done
 
 # REPORT=$(cat ~/tmp/t.json)  # for debug
 REPORT=$(wget -O - $LINK 2> /dev/null)
@@ -121,10 +127,7 @@ WHEN=$(
 
 $VERBOSE && echo WHEN is $WHEN
 
-
-[ "$THEMAX" -gt "$CRITICAL" ] && critical $THEMAX solar level in next three days. $WHEN $SEELINK
-[ "$THEMAX" -gt "$WARNING" ] && warning $THEMAX solar level in next three days. $WHEN $SEELINK
+floatGT "$THEMAX" "$CRITICAL" && critical $THEMAX solar level in next three days. $WHEN $SEELINK
+floatGT "$THEMAX" "$WARNING"  && warning $THEMAX solar level in next three days. $WHEN $SEELINK
 ok "$THEMAX solar level in next three days. $SEELINK"
 # exit in all three above.
-
-
