@@ -1,5 +1,11 @@
 #/bin/bash
 
+################################
+#
+#  Nagios program to analyze space weather predictions and alarm when certain thresholds are exceeded.
+#
+################################
+
 VERSION="1.0.01 edguy@eguy.org 2023-DEC-15"
 
 CRITICAL=6
